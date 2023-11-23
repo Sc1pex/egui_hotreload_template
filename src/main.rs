@@ -29,15 +29,19 @@ impl MainApp {
 }
 impl eframe::App for MainApp {
     fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
+        let storage = frame
+            .storage_mut()
+            .expect("eframe::persitance feature should be enabled");
+
         if self.reload_rx.try_recv().is_ok() {
-            hot_lib::reload_lib(frame.storage_mut().unwrap());
-            self.save_state_tx.send(()).unwrap();
+            hot_lib::reload_lib(storage);
+            self.save_state_tx.send(()).expect("Channel closed");
 
             // Wait for lib to be reloaded
-            self.reload_rx.recv().unwrap();
+            self.reload_rx.recv().expect("Channel closed");
         }
 
-        hot_lib::update(ctx, frame.storage_mut().unwrap());
+        hot_lib::update(ctx, storage);
     }
 }
 
@@ -50,13 +54,13 @@ fn main() {
 
         // Tell app that a reload will happen
         // And wait for it to save the state
-        reload_tx.send(()).unwrap();
-        save_state_rx.recv().unwrap();
+        reload_tx.send(()).expect("Channel closed");
+        save_state_rx.recv().expect("Channel closed");
         drop(token);
 
         hot_lib::subscribe().wait_for_reload();
         // Tell app that lib has reloaded
-        reload_tx.send(()).unwrap();
+        reload_tx.send(()).expect("Channel closed");
     });
 
     let native_options = NativeOptions::default();

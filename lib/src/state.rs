@@ -18,7 +18,7 @@ impl State {
     }
 
     pub fn update(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().show(&ctx, |ui| {
+        egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.vertical(|ui| {
                     ui.heading(format!("x is {}", self.x));
