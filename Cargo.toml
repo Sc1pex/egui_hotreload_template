@@ -3,7 +3,7 @@ resolver = "2"
 members = ["lib"]
 
 [package]
-name = "hotr_egui"
+name = "{{project-name}}"
 version = "0.1.0"
 edition = "2021"
 
