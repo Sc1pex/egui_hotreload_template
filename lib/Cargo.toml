@@ -8,3 +8,4 @@ crate-type = ["rlib", "dylib"]
 
 [dependencies]
 eframe = { version = "0.23.0", features = ["wayland", "persistence"] }
+serde = { version = "1.0.193", features = ["derive"] }

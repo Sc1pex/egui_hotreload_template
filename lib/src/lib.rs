@@ -1,25 +1,15 @@
 use eframe::egui;
+use state::State;
 
-pub struct State {
-    x: i32,
-    y: i32,
-}
-
-impl State {
-    pub fn new() -> Self {
-        Self { x: 20, y: 10 }
-    }
-}
+mod state;
 
 static mut STATE: Option<Box<State>> = None;
-
-#[no_mangle]
-pub fn state() -> &'static mut State {
+fn state(storage: &mut dyn eframe::Storage) -> &'static mut State {
     unsafe {
         match &mut STATE {
             Some(state) => state,
             None => {
-                STATE = Some(Box::new(State::new()));
+                STATE = Some(Box::new(State::new(storage)));
                 STATE.as_mut().unwrap()
             }
         }
@@ -27,26 +17,11 @@ pub fn state() -> &'static mut State {
 }
 
 #[no_mangle]
-pub fn update(ctx: &egui::Context) {
-    let state = state();
+pub fn update(ctx: &egui::Context, storage: &mut dyn eframe::Storage) {
+    state(storage).update(ctx);
+}
 
-    egui::CentralPanel::default().show(&ctx, |ui| {
-        ui.heading(format!("X is {}", state.x));
-
-        if ui.button("Inc").clicked() {
-            state.x += 1;
-        }
-        if ui.button("Decrement").clicked() {
-            state.x -= 1;
-        }
-
-        ui.heading(format!("Y is {}", state.y));
-
-        if ui.button("Inc").clicked() {
-            state.y += 1;
-        }
-        if ui.button("Dec").clicked() {
-            state.y -= 1;
-        }
-    });
+#[no_mangle]
+pub fn reload_lib(storage: &mut dyn eframe::Storage) {
+    state(storage).save(storage);
 }
